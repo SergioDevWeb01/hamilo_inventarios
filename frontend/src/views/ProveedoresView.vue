@@ -7,6 +7,7 @@
                     <h5 class="card-title">Proveedores</h5>
                 </div>
                 <div class="col-md-6 text-end">
+                    <!-- Botón para abrir el modal y agregar un nuevo proveedor -->
                     <button type="button" class="btn btn-warning" data-bs-toggle="modal"
                         data-bs-target="#modalProveedor">
                         <i class="fa fa-plus"></i>
@@ -15,6 +16,7 @@
                 </div>
             </div>
 
+            <!-- Tabla para mostrar la lista de proveedores -->
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -30,7 +32,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in proveedores" :key="item">
+                        <!-- Recorrer los proveedores y mostrar cada uno en una fila de la tabla -->
+                        <tr v-for="item in proveedores" :key="item.id">
                             <td>{{ item.id }}</td>
                             <td>{{ item.empresa }}</td>
                             <td>{{ item.contacto }}</td>
@@ -38,19 +41,23 @@
                             <td>{{ item.correo }}</td>
                             <td>{{ item.direccion }}</td>
                             <td>
+                                <!-- Mostrar el estado del proveedor -->
                                 <span v-if="item.estado" class="badge text-bg-success">Activo</span>
                                 <span v-else class="badge text-bg-danger">Inactivo</span>
                             </td>
                             <td>
+                                <!-- Botón para editar el proveedor -->
                                 <button @click="seleccionar(item)" class="btn btn-warning btn-sm">
                                     <i class="fa fa-edit"></i>
                                 </button>
+                                <!-- Botón para cambiar el estado del proveedor -->
                                 <button v-if="item.estado" @click="estado(item.id)" class="btn btn-danger btn-sm">
                                     <i class="fa fa-ban"></i>
                                 </button>
                                 <button v-else @click="estado(item.id)" class="btn btn-primary btn-sm">
                                     <i class="fa fa-check"></i>
                                 </button>
+                                <!-- Botón para eliminar el proveedor si está inactivo -->
                                 <button v-if="item.estado == 0" @click="eliminar(item.id)"
                                     class="btn btn-danger btn-sm">
                                     <i class="fa fa-trash"></i>
@@ -63,7 +70,7 @@
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal para agregar o editar un proveedor -->
     <div class="modal fade" id="modalProveedor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
