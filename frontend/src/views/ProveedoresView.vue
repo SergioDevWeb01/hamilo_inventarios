@@ -42,15 +42,19 @@
                                 <span v-else class="badge text-bg-danger">Inactivo</span>
                             </td>
                             <td>
-                                <a href="#" class="btn btn-primary btn-sm">
-                                    <i class="fa fa-eye"></i>
-                                </a>
-                                <a href="#" class="btn btn-warning btn-sm">
+                                <button @click="seleccionar(item)" class="btn btn-warning btn-sm">
                                     <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="#" class="btn btn-danger btn-sm">
+                                </button>
+                                <button v-if="item.estado" @click="estado(item.id)" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-ban"></i>
+                                </button>
+                                <button v-else @click="estado(item.id)" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                                <button v-if="item.estado == 0" @click="eliminar(item.id)"
+                                    class="btn btn-danger btn-sm">
                                     <i class="fa fa-trash"></i>
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -109,10 +113,15 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             Cerrar
                         </button>
-                        <button type="button" @click="registrar(); $refs.modalProveedorClose.click()" class="btn btn-primary">
+                        <button type="button" @click="
+                            registrar();
+                        $refs.modalProveedorClose.click();
+                        " class="btn btn-primary">
                             Guardar
                         </button>
-                        <button type="button" ref="modalProveedorClose" class="btn-close d-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" ref="modalProveedorClose" class="btn-close d-none" data-bs-dismiss="modal"
+                            aria-label="Close">
+                        </button>
                     </div>
                 </form>
             </div>
@@ -138,6 +147,7 @@ const contacto = ref("");
 const telefono = ref("");
 const correo = ref("");
 const direccion = ref("");
+const seleccionado = ref({});
 
 /**
  * Hook del ciclo de vida que se ejecuta cuando el componente se monta.
@@ -177,11 +187,80 @@ const registrar = async () => {
         estado: 1,
     };
     try {
-        const { data } = await axios.post(baseURL, datos); // Cambia '/store' por ''
-        console.log(data);
+        if (seleccionado.value.id) {
+            const { data } = await axios.put(`${baseURL}/${seleccionado.value.id}`, datos);
+            console.log(data);
+        } else {
+            const { data } = await axios.post(baseURL, datos);
+            console.log(data);
+        }
         obtenerDatos();
+        limpiarFormulario();
+        $refs.modalProveedorClose.click();
     } catch (error) {
         console.error(error);
+    }
+};
+
+/**
+ * Actualiza los datos del proveedor seleccionado y muestra el modal.
+ */
+const seleccionar = (item) => {
+    seleccionado.value = item;
+    empresa.value = item.empresa;
+    contacto.value = item.contacto;
+    telefono.value = item.telefono;
+    correo.value = item.correo;
+    direccion.value = item.direccion;
+
+    var myModalEl = document.getElementById("modalProveedor");
+    var modal = new bootstrap.Modal(myModalEl);
+    modal.show();
+};
+
+/**
+ * Limpia los valores de entrada del formulario y cierra el modal.
+ */
+const limpiarYCerrarModal = () => {
+    limpiarFormulario();
+    $refs.modalProveedorClose.click();
+};
+
+/**
+ * Limpia los valores de entrada del formulario.
+ */
+const limpiarFormulario = () => {
+    empresa.value = "";
+    contacto.value = "";
+    telefono.value = "";
+    correo.value = "";
+    direccion.value = "";
+    seleccionado.value = {};
+};
+
+/**
+ * Actualizar Estado
+ */
+const estado = async (id) => {
+    try {
+        const proveedor = proveedores.value.find(item => item.id === id);
+        const nuevoEstado = proveedor.estado ? 0 : 1;
+        const { data } = await axios.put(`${baseURL}/${id}`, { estado: nuevoEstado });
+        obtenerDatos();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+/**
+ * Eliminar
+ */
+const eliminar = async (id) => {
+    try {
+        await axios.delete(`${baseURL}/${id}`);
+        obtenerDatos();
+    } catch (error) {
+        console.log(error);
     }
 };
 </script>
